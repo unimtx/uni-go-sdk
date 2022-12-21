@@ -42,12 +42,11 @@ import (
 func main() {
     client := uni.NewClient("your access key id", "your access key secret")
 
-    message := client.Messages.BuildMessage()
-    message.SetTo("your phone number") // in E.164 format
-    message.SetSignature("your sender name")
-    message.SetContent("Your verification code is 2048.")
-
-    res, err := client.Send(message)
+    res, err := client.Messages.Send(&uni.MessageSendParams{
+        To: "your phone number",  // in E.164 format
+        Signature: "your sender name",
+        Content: "Your verification code is 2048.",
+    })
     if (err != nil) {
         fmt.Println(err)
     } else {
