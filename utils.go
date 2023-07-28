@@ -40,7 +40,7 @@ func StructToMap(obj interface{}) map[string]interface{} {
 		key := ToLowerFirstChar(t.Field(i).Name)
 		val := v.Field(i).Interface()
 
-		if (IsEmpty(val)) {
+		if IsEmpty(val) {
 			continue
 		}
 		data[key] = val

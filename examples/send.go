@@ -11,10 +11,9 @@ func main() {
 
 	res, err := client.Messages.Send(&uni.MessageSendParams{
 		To: "your phone number",  // in E.164 format
-		Signature: "your sender name",
-		Content: "Your verification code is 2048.",
+		Text: "Your verification code is 2048.",
 	})
-	if (err != nil) {
+	if err != nil {
 		fmt.Println(err)
 	} else {
 		fmt.Println(res)

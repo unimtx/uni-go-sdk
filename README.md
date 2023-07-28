@@ -26,12 +26,9 @@ go get github.com/unimtx/uni-go-sdk
 
 The following example shows how to use the Unimatrix Go SDK to interact with Unimatrix services.
 
-### Send SMS
-
-Send a text message to a single recipient.
+### Initialize a client
 
 ```go
-
 package main
 
 import (
@@ -41,19 +38,94 @@ import (
 
 func main() {
     client := uni.NewClient("your access key id", "your access key secret")
+}
+```
+
+or you can configure your credentials by environment variables:
+
+```sh
+export UNIMTX_ACCESS_KEY_ID=your_access_key_id
+export UNIMTX_ACCESS_KEY_SECRET=your_access_key_secret
+```
+
+### Send SMS
+
+Send a text message to a single recipient.
+
+```go
+package main
+
+import (
+    "fmt"
+    "github.com/unimtx/uni-go-sdk"
+)
+
+func main() {
+    client := uni.NewClient()
 
     res, err := client.Messages.Send(&uni.MessageSendParams{
-        To: "your phone number",  // in E.164 format
-        Signature: "your sender name",
-        Content: "Your verification code is 2048.",
+        To: "+1206880xxxx",  // in E.164 format
+        Text: "Your verification code is 2048.",
     })
-    if (err != nil) {
+    if err != nil {
         fmt.Println(err)
     } else {
         fmt.Println(res)
     }
 }
+```
 
+### Send verification code
+
+Send a one-time passcode (OTP) to a recipient. The following example will automatically generate a verification code.
+
+```go
+package main
+
+import (
+    "fmt"
+    "github.com/unimtx/uni-go-sdk"
+)
+
+func main() {
+    client := uni.NewClient()
+
+    res, err := client.Otp.Send(&uni.OtpSendParams{
+        To: "+1206880xxxx",
+    })
+    if err != nil {
+        fmt.Println(err)
+    } else {
+        fmt.Println(res)
+    }
+}
+```
+
+### Check verification code
+
+Verify the one-time passcode (OTP) that a user provided. The following example will check whether the user-provided verification code is correct.
+
+```go
+package main
+
+import (
+    "fmt"
+    "github.com/unimtx/uni-go-sdk"
+)
+
+func main() {
+    client := uni.NewClient()
+
+    res, err := client.Otp.Verify(&uni.OtpVerifyParams{
+        To: "+1206880xxxx",
+        Code: "123456", // the code user provided
+    })
+    if err != nil {
+        fmt.Println(err)
+    } else {
+        fmt.Println(res.Valid)
+    }
+}
 ```
 
 ## Reference

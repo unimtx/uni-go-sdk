@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"time"
 
@@ -29,6 +30,7 @@ type UniClient struct {
 	Endpoint			string
 	SigningAlgorithm	string
 	Messages            *MessageService
+	Otp					*OtpService
 }
 
 type UniResponse struct {
@@ -38,27 +40,34 @@ type UniResponse struct {
 	Message		string
 	Data		map[string]interface{}
 	RequestId	string
+	Valid		bool
 }
 
 func NewClient(params ...string) *UniClient {
-	var accessKeyId string
-	var accessKeySecret string
+	accessKeyId := os.Getenv("UNIMTX_ACCESS_KEY_ID")
+	accessKeySecret := os.Getenv("UNIMTX_ACCESS_KEY_SECRET")
+	endpoint := os.Getenv("UNIMTX_ENDPOINT")
 
-	if (len(params) > 0) {
+	if len(params) > 0 {
 		accessKeyId = params[0]
 	}
 
-	if (len(params) > 1) {
+	if len(params) > 1 {
 		accessKeySecret = params[1]
+	}
+
+	if len(endpoint) == 0 {
+		endpoint = defaultEndpoint
 	}
 
 	client := &UniClient{
 		AccessKeyId: accessKeyId,
 		AccessKeySecret: accessKeySecret,
-		Endpoint: defaultEndpoint,
+		Endpoint: endpoint,
 		SigningAlgorithm: defaultSigningAlgorithm,
 	}
 	client.Messages = &MessageService{client: client}
+	client.Otp = &OtpService{client: client}
 
 	return client
 }
@@ -76,7 +85,7 @@ func NewResponse(res *http.Response) (*UniResponse, error) {
 		return nil, err
 	}
 
-	if (rawBody != nil) {
+	if rawBody != nil {
 		body := make(map[string]interface{})
 		err := json.Unmarshal([]byte(rawBody), &body)
 
@@ -87,7 +96,7 @@ func NewResponse(res *http.Response) (*UniResponse, error) {
 		code = body["code"].(string)
 		message = body["message"].(string)
 
-		if (code != "0") {
+		if code != "0" {
 			return nil, errors.New(fmt.Sprintf("[%s] %s, RequestId: %s", code, message, requestId))
 		}
 		data = body["data"].(map[string]interface{})
@@ -112,7 +121,7 @@ func (c *UniClient) GenerateRandomString(n int) string {
 }
 
 func (c *UniClient) Sign(query url.Values) url.Values  {
-	if (c.AccessKeySecret != "") {
+	if c.AccessKeySecret != "" {
 		query.Add("algorithm", c.SigningAlgorithm)
 		query.Add("timestamp", strconv.FormatInt(time.Now().Unix(), 10))
 		query.Add("nonce", c.GenerateRandomString(8))
