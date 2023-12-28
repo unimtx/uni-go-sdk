@@ -37,7 +37,7 @@ import (
 )
 
 func main() {
-    client := uni.NewClient("your access key id", "your access key secret")
+    client := uni.NewClient()
 }
 ```
 
@@ -77,7 +77,7 @@ func main() {
 
 ### Send verification code
 
-Send a one-time passcode (OTP) to a recipient. The following example will automatically generate a verification code.
+Send a one-time passcode (OTP) to a recipient. The following example will send a automatically generated verification code to the user.
 
 ```go
 package main
